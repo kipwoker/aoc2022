@@ -8,7 +8,6 @@ fun main() {
         return 0
     }
 
-    // test if implementation meets criteria from the description, like:
     val testInput = readInput("DayN_test")
     assert(part1(testInput), 0L)
 

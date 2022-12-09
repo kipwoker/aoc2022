@@ -62,28 +62,10 @@ fun main() {
         return Point(tail.x + dx, tail.y + dy)
     }
 
-    fun part1(input: List<String>): Int {
-        val commands = parse(input)
+    fun traverse(commands: List<Command>, totalSize: Int): Int {
         val visited = mutableSetOf<Point>()
         var head = Point(0, 0)
-        var tail = Point(0, 0)
-        visited.add(tail)
-        for (command in commands) {
-            for (i in 1..command.count) {
-                head = move(head, command.direction)
-                tail = tryMoveTail(head, tail)
-                visited.add(tail)
-            }
-        }
-
-        return visited.count()
-    }
-
-    fun part2(input: List<String>): Int {
-        val commands = parse(input)
-        val visited = mutableSetOf<Point>()
-        var head = Point(0, 0)
-        val size = 8
+        val size = totalSize - 2
         val middle = (1..size).map { Point(0, 0) }.toMutableList()
         var tail = Point(0, 0)
         visited.add(tail)
@@ -101,6 +83,16 @@ fun main() {
         }
 
         return visited.count()
+    }
+
+    fun part1(input: List<String>): Int {
+        val commands = parse(input)
+        return traverse(commands, 2)
+    }
+
+    fun part2(input: List<String>): Int {
+        val commands = parse(input)
+        return traverse(commands, 10)
     }
 
     val testInput = readInput("Day09_test")

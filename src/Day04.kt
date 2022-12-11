@@ -1,44 +1,27 @@
-class SectionRange(val start: Int, val end: Int)
-class SectionPair(val left: SectionRange, val right: SectionRange) {
-    fun hasFullOverlap(): Boolean {
-        return hasFullOverlap(left, right) || hasFullOverlap(right, left)
-    }
 
-    fun hasOverlap(): Boolean {
-        return hasOverlap(left, right) || hasOverlap(right, left)
-    }
-
-    private fun hasFullOverlap(x: SectionRange, y: SectionRange): Boolean {
-        return x.start >= y.start && x.end <= y.end
-    }
-
-    private fun hasOverlap(x: SectionRange, y: SectionRange): Boolean {
-        return x.start >= y.start && x.start <= y.end
-    }
-}
 
 fun main() {
-    fun parse(lines: List<String>): List<SectionPair> {
+    fun parse(lines: List<String>): List<Pair<Interval, Interval>> {
         return lines.map { line ->
-            val ranges = line
+            val intervals = line
                 .split(',')
                 .map { range ->
                     val rangeParts = range.split('-')
-                    SectionRange(rangeParts[0].toInt(), rangeParts[1].toInt())
+                    Interval(rangeParts[0].toInt(), rangeParts[1].toInt())
                 }
-            SectionPair(ranges[0], ranges[1])
+            intervals[0]to intervals[1]
         }
     }
 
     fun part1(input: List<String>): Int {
         return parse(input)
-            .filter { it.hasFullOverlap() }
+            .filter { (left, right) -> left.hasFullOverlap(right) }
             .size
     }
 
     fun part2(input: List<String>): Int {
         return parse(input)
-            .filter { it.hasOverlap() }
+            .filter { (left, right) -> left.hasOverlap(right) }
             .size
     }
 

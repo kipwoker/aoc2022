@@ -22,3 +22,21 @@ fun <T> assert(actual: T, expected: T) {
 
     throw Exception("Actual $actual Expected $expected")
 }
+
+class Interval(val start: Int, val end: Int) {
+    fun hasFullOverlap(other: Interval): Boolean {
+        return hasFullOverlap(this, other) || hasFullOverlap(other, this)
+    }
+
+    fun hasOverlap(other: Interval): Boolean {
+        return hasOverlap(this, other) || hasOverlap(other, this)
+    }
+
+    private fun hasFullOverlap(x: Interval, y: Interval): Boolean {
+        return x.start >= y.start && x.end <= y.end
+    }
+
+    private fun hasOverlap(x: Interval, y: Interval): Boolean {
+        return x.start >= y.start && x.start <= y.end
+    }
+}

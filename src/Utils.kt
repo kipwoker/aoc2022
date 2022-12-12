@@ -40,3 +40,5 @@ class Interval(val start: Int, val end: Int) {
         return x.start >= y.start && x.start <= y.end
     }
 }
+
+data class Point(val x: Int, val y: Int)

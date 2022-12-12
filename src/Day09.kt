@@ -8,7 +8,7 @@ enum class Direction {
 }
 
 class Command(val direction: Direction, val count: Int)
-data class Point(val x: Int, val y: Int)
+
 
 fun main() {
     fun parse(input: List<String>): List<Command> {

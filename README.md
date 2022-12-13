@@ -1,5 +1,7 @@
 # aoc2022
 
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/kipwoker/aoc2022/HEAD)
+
 Welcome to the Advent of Code[^aoc] Kotlin project created by [kipwoker][github] using the [Advent of Code Kotlin Template][template] delivered by JetBrains.
 
 In this repository, kipwoker is about to provide solutions for the puzzles using [Kotlin][kotlin] language.

@@ -1,0 +1,150 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":null,"items":[{"name":"csharp","languageName":"C#","aliases":["c#","cs"]},{"name":"fsharp","languageName":"F#","aliases":["f#","fs"]},{"name":"pwsh","languageName":"PowerShell","aliases":["powershell"]},{"name":"javascript","languageName":"JavaScript","aliases":["js"]},{"name":"html","languageName":"HTML"},{"name":"sql","languageName":"SQL"},{"name":"kql","languageName":"KQL"},{"name":"mermaid","languageName":"Mermaid"},{"name":"httpRequest","languageName":"http"},{"name":"value"}]}}
+
+#!fsharp
+
+open System.IO
+open System.Text
+
+#r "nuget: FSharp.Data, 5.0.2"
+
+open FSharp.Data
+
+#!fsharp
+
+[<Literal>]
+let sample = """[1, 2, [3, 4], 5, 6, [7, [8, [9, [10], []]]], 1, 2, 100, 200, [30, [40, 50], 60], 70, 80]"""
+
+type List' = JsonProvider<sample>
+
+#!fsharp
+
+type Sign = Eq | Less | More
+
+let compare'(left: decimal, right: decimal): Sign =
+    if left = right then
+        Eq
+    else
+        if left < right then
+            Less
+        else
+            More
+
+let rec compareCollections(left: JsonValue list, right: JsonValue list, c): Sign =
+    match left, right with
+    | [], [] -> Eq
+    | l, [] -> More
+    | [], r -> Less
+    | hl::tl, hr::tr -> 
+        match c(hl, hr) with
+        | Eq -> compareCollections(tl, tr, c)
+        | result -> result
+
+let rec compare (left, right): Sign =
+    match (left, right) with
+    | (JsonValue.Number l, JsonValue.Number r) -> compare'(l, r)
+    | (JsonValue.Array l, JsonValue.Array r) ->
+        let l' = l |> List.ofArray
+        let r' = r |> List.ofArray
+        compareCollections(l', r', compare)
+    | (JsonValue.Number l, JsonValue.Array r) ->
+        compareCollections([left], r |> List.ofArray, compare)
+    | (JsonValue.Array l, JsonValue.Number r) ->
+        compareCollections(l |> List.ofArray, [right], compare)
+    | ex -> 
+        printfn $"Unknown json condition %A{ex}"
+        Eq
+
+let left' = JsonValue.Parse("""[[1],[2,3,4]]""")
+let right' = JsonValue.Parse("""[[1],4]""")
+
+let result = compare(left', right')
+printfn $"Result: %A{result}"
+result = Less
+
+#!fsharp
+
+let input = File.ReadAllLines("""D:\Projects\aoc2022_fsharp\aoc2022\Day13.txt""", Encoding.UTF8)
+let testInput = File.ReadAllLines("""D:\Projects\aoc2022_fsharp\aoc2022\Day13_test.txt""", Encoding.UTF8)
+
+#!fsharp
+
+let parse' (lines: string[]) =
+    lines
+    |> Array.chunkBySize 3
+    |> Array.map(fun block -> (block.[0], block.[1]))
+    
+let parse (lines: string[]) =
+    parse' lines
+    |> Array.map (fun (left, right) ->
+        JsonValue.Parse(left), JsonValue.Parse(right)
+    )
+
+let t = testInput |> parse'
+[
+    t.[0];
+    t.[t.Length - 1]
+]
+
+#!fsharp
+
+let solve1 pairs =
+    pairs
+    |> Array.map ( fun (left, right) -> compare(left, right) )
+    |> Array.mapi ( fun index r -> if r = Less then index + 1 else 0 )
+    |> Array.sum
+
+#!fsharp
+
+testInput |> parse |> solve1
+
+#!fsharp
+
+input |> parse |> solve1
+
+#!fsharp
+
+let rec toString tree =
+    match tree with
+    | JsonValue.Array a when a.Length = 0 -> 
+        "[]"
+    | JsonValue.Array a -> 
+        let result = a 
+                        |> Array.map toString
+                        |> Array.reduce (fun acc charge -> $"{acc},{charge}")
+        $"[{result}]"
+    | JsonValue.Number n ->
+        (int n).ToString()
+    | ex ->
+        printfn $"Unknown print condition %A{ex}"
+        ""
+
+JsonValue.Parse("[[2]]") |> toString
+
+#!fsharp
+
+let comparer left right =
+    match compare(left, right) with
+    | Eq -> 0
+    | Less -> -1
+    | More -> 1
+
+let solve2 pairs =
+    pairs
+    |> Array.collect (fun (left, right) -> [| left; right |])
+    |> Array.append [|JsonValue.Parse("[[2]]"); JsonValue.Parse("[[6]]")|]
+    |> Array.sortWith comparer
+    |> Array.mapi ( fun index r -> 
+        let s = r |> toString
+        if s = "[[2]]" || s = "[[6]]"  then index + 1 else 1 
+    )
+    |> Array.reduce ( fun acc r -> acc * r )
+
+#!fsharp
+
+testInput |> parse |> solve2
+
+#!fsharp
+
+input |> parse |> solve2

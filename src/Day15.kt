@@ -20,30 +20,6 @@ fun main() {
         }
     }
 
-    fun merge(intervals: List<Interval>): List<Interval> {
-        var sorted = intervals.sortedBy { i -> i.start }
-        var hasOverlap = true
-        while (hasOverlap && sorted.size > 1) {
-            hasOverlap = false
-            val bucket = sorted.toMutableList<Interval?>()
-            var i = 0
-            while (i < bucket.size - 1) {
-                if (bucket[i] != null && bucket[i + 1] != null && bucket[i]!!.hasOverlap(bucket[i + 1]!!)) {
-                    hasOverlap = true
-                    val merged = bucket[i]!!.merge(bucket[i + 1]!!)
-                    bucket[i] = null
-                    bucket[i + 1] = merged
-                }
-
-                i += 1
-            }
-
-            sorted = bucket.filterNotNull()
-        }
-
-        return sorted
-    }
-
     fun getIntervals(
         signals: List<Signal>,
         row: Int
@@ -60,7 +36,7 @@ fun main() {
             }
         }
 
-        val merged = merge(intervals)
+        val merged = Interval.merge(intervals)
         // println("Merged: $merged")
         return merged
     }

@@ -26,6 +26,32 @@ fun <T> assert(actual: T, expected: T) {
 }
 
 data class Interval(val start: Int, val end: Int) {
+    companion object {
+        fun merge(intervals: List<Interval>): List<Interval> {
+            var sorted = intervals.sortedBy { i -> i.start }
+            var hasOverlap = true
+            while (hasOverlap && sorted.size > 1) {
+                hasOverlap = false
+                val bucket = sorted.toMutableList<Interval?>()
+                var i = 0
+                while (i < bucket.size - 1) {
+                    if (bucket[i] != null && bucket[i + 1] != null && bucket[i]!!.hasOverlap(bucket[i + 1]!!)) {
+                        hasOverlap = true
+                        val merged = bucket[i]!!.merge(bucket[i + 1]!!)
+                        bucket[i] = null
+                        bucket[i + 1] = merged
+                    }
+
+                    i += 1
+                }
+
+                sorted = bucket.filterNotNull()
+            }
+
+            return sorted
+        }
+    }
+
     fun hasFullOverlap(other: Interval): Boolean {
         return hasFullOverlap(this, other) || hasFullOverlap(other, this)
     }
@@ -46,8 +72,12 @@ data class Interval(val start: Int, val end: Int) {
         return x.start >= y.start && x.start <= y.end
     }
 
-    fun countPoints(excludePoints: Set<Int>): Int {
+    fun countPoints(excludePoints: Set<Int>? = null): Int {
         var count = end - start + 1
+        if (excludePoints == null) {
+            return count
+        }
+
         for (p in excludePoints) {
             if (p in start..end) {
                 --count

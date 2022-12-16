@@ -267,7 +267,7 @@ fun main() {
         val allClosed = BigInteger.ZERO
 
         val player = Player2(indexMap, mutableMapOf(), graph, allOpened)
-        return player.play(State2("AA", "AA", allClosed, 20))
+        return player.play(State2("AA", "AA", allClosed, 26))
     }
 
     val testInput = readInput("Day16_test")

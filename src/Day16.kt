@@ -45,7 +45,7 @@ fun main() {
                 return 0
             }
 
-            if (state.minutesLeft == 0) {
+            if (state.minutesLeft <= 1) {
                 return 0
             }
 
@@ -98,7 +98,7 @@ fun main() {
                 return 0
             }
 
-            if (state.minutesLeft == 0) {
+            if (state.minutesLeft <= 1) {
                 return 0
             }
 
@@ -112,9 +112,11 @@ fun main() {
 
                 val vertex1 = graph[state.vertex1]!!
                 val vertexIndex1 = indexMap[state.vertex1]!!
+                var openCount = 0
                 if (vertex1.rate != 0 && !isOpen(valveState, vertexIndex1)) {
                     valveState = switchOn(valveState, vertexIndex1)
                     subCost += minutesLeft * vertex1.rate
+                    ++openCount
                 }
 
                 val vertex2 = graph[state.vertex2]!!
@@ -122,18 +124,21 @@ fun main() {
                 if (vertex2.rate != 0 && !isOpen(valveState, vertexIndex2)) {
                     valveState = switchOn(valveState, vertexIndex2)
                     subCost += minutesLeft * vertex2.rate
+                    ++openCount
                 }
 
-                val openCost = subCost + play(
-                    State2(
-                        state.vertex1,
-                        state.vertex2,
-                        valveState,
-                        minutesLeft
+                if (openCount == 2) {
+                    val openCost = subCost + play(
+                        State2(
+                            state.vertex1,
+                            state.vertex2,
+                            valveState,
+                            minutesLeft
+                        )
                     )
-                )
 
-                cost = max(cost, openCost)
+                    cost = max(cost, openCost)
+                }
             }
 
             // open + move
@@ -143,23 +148,27 @@ fun main() {
 
                 val vertex1 = graph[state.vertex1]!!
                 val vertexIndex1 = indexMap[state.vertex1]!!
+                var opened = false
                 if (vertex1.rate != 0 && !isOpen(valveState, vertexIndex1)) {
                     valveState = switchOn(valveState, vertexIndex1)
                     subCost += minutesLeft * vertex1.rate
+                    opened = true
                 }
 
-                val vertex2 = graph[state.vertex2]!!
-                for (target in vertex2.directions) {
-                    val moveCost = subCost + play(
-                        State2(
-                            state.vertex1,
-                            target,
-                            valveState,
-                            minutesLeft
+                if (opened) {
+                    val vertex2 = graph[state.vertex2]!!
+                    for (target in vertex2.directions) {
+                        val moveCost = subCost + play(
+                            State2(
+                                state.vertex1,
+                                target,
+                                valveState,
+                                minutesLeft
+                            )
                         )
-                    )
 
-                    cost = max(cost, moveCost)
+                        cost = max(cost, moveCost)
+                    }
                 }
             }
 
@@ -170,23 +179,27 @@ fun main() {
 
                 val vertex2 = graph[state.vertex2]!!
                 val vertexIndex2 = indexMap[state.vertex2]!!
+                var opened = false
                 if (vertex2.rate != 0 && !isOpen(valveState, vertexIndex2)) {
                     valveState = switchOn(valveState, vertexIndex2)
                     subCost += minutesLeft * vertex2.rate
+                    opened = true
                 }
 
-                val vertex1 = graph[state.vertex1]!!
-                for (target in vertex1.directions) {
-                    val moveCost = subCost + play(
-                        State2(
-                            target,
-                            state.vertex2,
-                            valveState,
-                            minutesLeft
+                if (opened) {
+                    val vertex1 = graph[state.vertex1]!!
+                    for (target in vertex1.directions) {
+                        val moveCost = subCost + play(
+                            State2(
+                                target,
+                                state.vertex2,
+                                valveState,
+                                minutesLeft
+                            )
                         )
-                    )
 
-                    cost = max(cost, moveCost)
+                        cost = max(cost, moveCost)
+                    }
                 }
             }
 
@@ -196,6 +209,10 @@ fun main() {
                 val vertex2 = graph[state.vertex2]!!
                 for (target1 in vertex1.directions) {
                     for (target2 in vertex2.directions) {
+                        if (target1 == target2) {
+                            continue
+                        }
+
                         val moveCost = play(
                             State2(
                                 target1,
@@ -250,7 +267,7 @@ fun main() {
         val allClosed = BigInteger.ZERO
 
         val player = Player2(indexMap, mutableMapOf(), graph, allOpened)
-        return player.play(State2("AA", "AA", allClosed, 26))
+        return player.play(State2("AA", "AA", allClosed, 20))
     }
 
     val testInput = readInput("Day16_test")

@@ -110,12 +110,11 @@ fun main() {
                 var valveState = state.valveState
                 var subCost = 0
 
-                val vertex1 = graph[state.vertex1]!!
-                val vertexIndex1 = indexMap[state.vertex1]!!
+                val vertexIndex1 = indexMap[state.vertex1]
                 var openCount = 0
-                if (vertex1.rate != 0 && !isOpen(valveState, vertexIndex1)) {
+                if (vertexIndex1 != null && !isOpen(valveState, vertexIndex1)) {
                     valveState = switchOn(valveState, vertexIndex1)
-                    subCost += minutesLeft * vertex1.rate
+                    subCost += minutesLeft * graph[state.vertex1]!!.rate
                     ++openCount
                 }
 
@@ -123,7 +122,7 @@ fun main() {
                 val vertexIndex2 = indexMap[state.vertex2]!!
                 if (vertex2.rate != 0 && !isOpen(valveState, vertexIndex2)) {
                     valveState = switchOn(valveState, vertexIndex2)
-                    subCost += minutesLeft * vertex2.rate
+                    subCost += minutesLeft * graph[state.vertex2]!!.rate
                     ++openCount
                 }
 
@@ -146,12 +145,11 @@ fun main() {
                 var valveState = state.valveState
                 var subCost = 0
 
-                val vertex1 = graph[state.vertex1]!!
-                val vertexIndex1 = indexMap[state.vertex1]!!
+                val vertexIndex1 = indexMap[state.vertex1]
                 var opened = false
-                if (vertex1.rate != 0 && !isOpen(valveState, vertexIndex1)) {
+                if (vertexIndex1 != null && !isOpen(valveState, vertexIndex1)) {
                     valveState = switchOn(valveState, vertexIndex1)
-                    subCost += minutesLeft * vertex1.rate
+                    subCost += minutesLeft * graph[state.vertex1]!!.rate
                     opened = true
                 }
 
@@ -177,12 +175,11 @@ fun main() {
                 var valveState = state.valveState
                 var subCost = 0
 
-                val vertex2 = graph[state.vertex2]!!
-                val vertexIndex2 = indexMap[state.vertex2]!!
+                val vertexIndex2 = indexMap[state.vertex2]
                 var opened = false
-                if (vertex2.rate != 0 && !isOpen(valveState, vertexIndex2)) {
+                if (vertexIndex2 != null && !isOpen(valveState, vertexIndex2)) {
                     valveState = switchOn(valveState, vertexIndex2)
-                    subCost += minutesLeft * vertex2.rate
+                    subCost += minutesLeft * graph[state.vertex2]!!.rate
                     opened = true
                 }
 
@@ -260,7 +257,7 @@ fun main() {
 
     fun part2(input: List<String>): Int {
         val vertexes = parse(input)
-        val indexMap = vertexes.mapIndexed { index, item -> item.id to index }.toMap()
+        val indexMap = vertexes.filter { x -> x.rate > 0 }.mapIndexed { index, item -> item.id to index }.toMap()
         val graph = vertexes.associateBy { item -> item.id }
 
         val allOpened = BigInteger("1".repeat(indexMap.size))

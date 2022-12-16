@@ -1,3 +1,4 @@
+const val day = "N"
 
 fun main() {
     fun part1(input: List<String>): Long {
@@ -8,10 +9,18 @@ fun main() {
         return 0
     }
 
-    val testInput = readInput("DayN_test")
-    assert(part1(testInput), 0L)
+    fun test() {
+        val testInput = readInput("Day${day}_test")
+        assert(part1(testInput), 0L)
+        assert(part2(testInput), 0L)
+    }
 
-    val input = readInput("DayN")
-    println(part1(input))
-    println(part2(input))
+    fun run() {
+        val input = readInput("Day$day")
+        println(part1(input))
+        println(part2(input))
+    }
+
+    test()
+    run()
 }

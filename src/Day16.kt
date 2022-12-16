@@ -118,9 +118,8 @@ fun main() {
                     ++openCount
                 }
 
-                val vertex2 = graph[state.vertex2]!!
-                val vertexIndex2 = indexMap[state.vertex2]!!
-                if (vertex2.rate != 0 && !isOpen(valveState, vertexIndex2)) {
+                val vertexIndex2 = indexMap[state.vertex2]
+                if (vertexIndex2 != null && !isOpen(valveState, vertexIndex2)) {
                     valveState = switchOn(valveState, vertexIndex2)
                     subCost += minutesLeft * graph[state.vertex2]!!.rate
                     ++openCount

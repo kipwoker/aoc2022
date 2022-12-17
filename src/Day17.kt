@@ -93,6 +93,12 @@ class Rock(val cells: List<LongPoint>, var shift: LongPoint) {
 
 @Suppress("DuplicatedCode")
 fun main() {
+    data class State(
+        val stoppedRocksCount: Long,
+        val ground: Set<LongPoint>,
+        val maxY: Long
+    )
+
     fun parse(input: List<String>): List<Direction> {
         return input[0].toCharArray().map { c -> if (c == '<') Direction.Left else Direction.Right }
     }
@@ -114,56 +120,116 @@ fun main() {
         println()
     }
 
-    fun play(directions: List<Direction>, rocksLimit: Long): Long {
+    fun calculateState(
+        topLevelMap: MutableMap<Long, Long>,
+        stopped: Long,
+        maxY: Long
+    ): State {
+        val minY = topLevelMap.minOf { t -> t.value }
+        val newGround = topLevelMap.map { t -> LongPoint(t.key, (t.value - minY)) }.toSet()
+        return State(stopped, newGround, maxY)
+    }
+
+    fun play(directions: List<Direction>, rocksLimit: Long, initGround: Set<LongPoint>): List<State> {
         var directionIterator = 0
         var rockIterator = 0
         var shift = LongPoint(2, 3)
-        val stopped = mutableListOf<Rock>()
-        val rockPoints = mutableSetOf<LongPoint>()
+        val ground = initGround.toMutableSet()
+        var stopped = 0L
+        val topLevelMap = mutableMapOf<Long, Long>()
         var activeRock: Rock? = null
         var maxY = 0L
 
+        val states = mutableListOf<State>()
+
         val dy = LongPoint(0, -1)
-        while (stopped.size < rocksLimit) {
+        while (stopped < rocksLimit) {
             if (activeRock == null) {
                 activeRock = Rock.create(rockIterator, shift)
                 ++rockIterator
             }
             val direction = directions[directionIterator]
             val dx = if (direction == Direction.Left) LongPoint(-1, 0) else LongPoint(1, 0)
-            if (!activeRock.hasCollision(rockPoints, dx)) {
+
+            if (!activeRock.hasCollision(ground, dx)) {
                 activeRock.shift = activeRock.shift.sum(dx)
             }
 
-            if (!activeRock.hasCollision(rockPoints, dy)) {
+            if (!activeRock.hasCollision(ground, dy)) {
                 activeRock.shift = activeRock.shift.sum(dy)
             } else {
-                stopped.add(activeRock)
+                ++stopped
                 val coords = activeRock.getCoords()
-                rockPoints.addAll(coords)
-                maxY = max(maxY, coords.maxOf { c -> c.y })
+                for (coord in coords) {
+                    val top = topLevelMap[coord.x]
+                    if (top == null || top < coord.y) {
+                        topLevelMap[coord.x] = coord.y
+                    }
+                }
+                ground.addAll(coords)
 
-                shift = LongPoint(shift.x, maxY + 3 + 1)
+                // remove unreachable
+                val minLevel = topLevelMap.values.min()
+                ground.removeIf { it.y < minLevel }
+
+                maxY = max(maxY, topLevelMap.values.max() + 1)
+
+                shift = LongPoint(shift.x, maxY + 3)
 
                 activeRock = null
-
-                // print(stopped)
             }
 
             directionIterator = (directionIterator + 1) % directions.size
+
+            if (directionIterator == 0) {
+                states.add(calculateState(topLevelMap, stopped, maxY))
+                if (states.size > 1) {
+                    break
+                }
+            }
         }
 
-        return maxY + 1
+        if (states.size <= 1) {
+            states.add(calculateState(topLevelMap, stopped, maxY))
+        }
+
+        return states
     }
 
     fun part1(input: List<String>): Long {
         val directions = parse(input)
-        return play(directions, 2022L)
+
+        val totalRocks = 2022L
+        val defaultGround = (0..6).map { LongPoint(it.toLong(), -1) }.toSet()
+
+        val states = play(directions, totalRocks, defaultGround).reversed()
+        val (_, _, maxY) = states[0]
+        return maxY
     }
 
     fun part2(input: List<String>): Long {
         val directions = parse(input)
-        return play(directions, 1000000000000L)
+
+        val totalRocks = 1000000000000L
+        val defaultGround = (0..6).map { LongPoint(it.toLong(), -1) }.toSet()
+
+        val states = play(directions, totalRocks, defaultGround).reversed()
+        val deltaRocks = states[0].stoppedRocksCount - states[1].stoppedRocksCount
+        val deltaY = states[0].maxY - states[1].maxY
+        val leftRocks = totalRocks - states[0].stoppedRocksCount
+        val maxY = states[0].maxY
+
+        val mult = leftRocks / deltaRocks
+        val sliceY = deltaY * mult
+        val restRocks = leftRocks % deltaRocks
+
+        val (_, _, maxY1) = play(
+            directions,
+            restRocks,
+            states[0].ground
+        )[0]
+
+        return maxY + sliceY + maxY1 - 1
     }
 
 // ==================================================================== //
@@ -182,6 +248,6 @@ fun main() {
         println(part2(input))
     }
 
-    test()
-    // run()
+    // test()
+    run()
 }

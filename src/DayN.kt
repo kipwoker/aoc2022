@@ -1,5 +1,7 @@
-@Suppress("DuplicatedCode")
-fun main() {
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTime
+
+class DayN {
     fun part1(input: List<String>): Long {
         return 0
     }
@@ -7,21 +9,33 @@ fun main() {
     fun part2(input: List<String>): Long {
         return 0
     }
+}
 
-// ==================================================================== //
-
-    val day = "N"
+@OptIn(ExperimentalTime::class)
+@Suppress("DuplicatedCode")
+fun main() {
+    val solution = DayN()
+    val name = solution.javaClass.name
 
     fun test() {
-        val testInput = readInput("Day${day}_test")
-        assert(part1(testInput), 0L)
-        assert(part2(testInput), 0L)
+        val testInput = readInput("${name}_test")
+        assert(solution.part1(testInput), 0L)
+        assert(solution.part2(testInput), 0L)
     }
 
     fun run() {
-        val input = readInput("Day$day")
-        println(part1(input))
-        println(part2(input))
+        val input = readInput(name)
+        val elapsed1 = measureTime {
+            println("Part1: " + solution.part1(input))
+        }
+        println("Elapsed: $elapsed1")
+        println()
+
+        val elapsed2 = measureTime {
+            println("Part2: " + solution.part2(input))
+        }
+        println("Elapsed: $elapsed2")
+        println()
     }
 
     test()

@@ -1,5 +1,4 @@
-const val day = "N"
-
+@Suppress("DuplicatedCode")
 fun main() {
     fun part1(input: List<String>): Long {
         return 0
@@ -8,6 +7,10 @@ fun main() {
     fun part2(input: List<String>): Long {
         return 0
     }
+
+// ==================================================================== //
+
+    val day = "N"
 
     fun test() {
         val testInput = readInput("Day${day}_test")

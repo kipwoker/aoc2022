@@ -88,4 +88,15 @@ data class Interval(val start: Int, val end: Int) {
     }
 }
 
-data class Point(val x: Int, val y: Int)
+data class Point(val x: Int, val y: Int) {
+    fun sum(other: Point): Point {
+        return Point(this.x + other.x, this.y + other.y)
+    }
+}
+
+enum class Direction {
+    Up,
+    Down,
+    Left,
+    Right
+}

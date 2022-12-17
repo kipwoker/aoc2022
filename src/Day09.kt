@@ -1,14 +1,6 @@
 import kotlin.math.abs
 
-enum class Direction {
-    Up,
-    Down,
-    Left,
-    Right
-}
-
 class Command(val direction: Direction, val count: Int)
-
 
 fun main() {
     fun parse(input: List<String>): List<Command> {

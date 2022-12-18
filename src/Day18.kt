@@ -3,39 +3,53 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 
 class Day18 {
-    data class Point(val x: Int, val y: Int, val z: Int) {
+    data class Point(val xs: Array<Int>) {
         fun isBetween(minPoint: Point, maxPoint: Point): Boolean {
-            return (
-                this.x in minPoint.x..maxPoint.x &&
-                    this.y in minPoint.y..maxPoint.y &&
-                    this.z in minPoint.z..maxPoint.z
-                )
+            return xs
+                .zip(minPoint.xs)
+                .zip(maxPoint.xs)
+                .all { p ->
+                    val x = p.first.first
+                    val min = p.first.second
+                    val max = p.second
+
+                    x in min..max
+                }
+        }
+
+        fun add(index: Int, value: Int): Point {
+            val new = xs.copyOf()
+            new[index] += value
+            return Point(new)
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as Point
+
+            if (!xs.contentEquals(other.xs)) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return xs.contentHashCode()
         }
     }
 
-    val wildcard = Int.MAX_VALUE
-
     fun parse(input: List<String>): Set<Point> {
         return input.map { line ->
-            val parts = line.split(',').map { it.toInt() }
-            Point(parts[0], parts[1], parts[2])
+            val xs = line.split(',').map { it.toInt() }.toTypedArray()
+            Point(xs)
         }.toSet()
     }
 
     fun getNeighbors(point: Point): Set<Point> {
         val range = listOf(-1, 1)
-        val result = mutableSetOf<Point>()
-        for (dx in range) {
-            result.add(Point(point.x + dx, point.y, point.z))
-        }
-        for (dy in range) {
-            result.add(Point(point.x, point.y + dy, point.z))
-        }
-        for (dz in range) {
-            result.add(Point(point.x, point.y, point.z + dz))
-        }
 
-        return result
+        return point.xs.flatMapIndexed { index, _ -> range.map { dx -> point.add(index, dx) } }.toSet()
     }
 
     fun part1(input: List<String>): String {
@@ -55,16 +69,12 @@ class Day18 {
         val points = parse(input)
         var result = 0L
 
-        val maxX = points.maxOf { p -> p.x }
-        val maxY = points.maxOf { p -> p.y }
-        val maxZ = points.maxOf { p -> p.z }
+        val dimension = points.first().xs.size
+        val max = (0 until dimension).map { d -> points.maxOf { p -> p.xs[d] } }
+        val min = (0 until dimension).map { d -> points.minOf { p -> p.xs[d] } }
 
-        val minX = points.minOf { p -> p.x }
-        val minY = points.minOf { p -> p.y }
-        val minZ = points.minOf { p -> p.z }
-
-        val maxPoint = Point(maxX + 1, maxY + 1, maxZ + 1)
-        val minPoint = Point(minX - 1, minY - 1, minZ - 1)
+        val maxPoint = Point(max.map { it + 1 }.toTypedArray())
+        val minPoint = Point(min.map { it - 1 }.toTypedArray())
 
         val visited = mutableSetOf<Point>()
         val q = ArrayDeque(listOf(minPoint))

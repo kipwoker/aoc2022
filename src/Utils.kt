@@ -26,6 +26,10 @@ fun <T> assert(actual: T, expected: T) {
 }
 
 data class Interval(val start: Int, val end: Int) {
+    fun isBound(value: Int): Boolean {
+        return start == value || end == value
+    }
+
     companion object {
         fun merge(intervals: List<Interval>): List<Interval> {
             var sorted = intervals.sortedBy { i -> i.start }
@@ -99,4 +103,10 @@ enum class Direction {
     Down,
     Left,
     Right
+}
+
+enum class Sign {
+    Eq,
+    Less,
+    More
 }

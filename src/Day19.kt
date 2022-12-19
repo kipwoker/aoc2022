@@ -67,13 +67,10 @@ class Day19 {
 
             val geodeCount = state.materialsCount.g(Material.Geode)
             val clayCount = state.materialsCount.g(Material.Clay)
-            val obsidianCount = state.materialsCount.g(Material.Obsidian)
-            val oreCount = state.materialsCount.g(Material.Ore)
             if (state.minutesLeft == 0) {
                 return geodeCount
             }
 
-            var justWait = false
             val oreRobotsCount = state.robotsCount.g(Material.Ore)
             val clayRobotsCount = state.robotsCount.g(Material.Clay)
             val obsidianRobotsCount = state.robotsCount.g(Material.Obsidian)
@@ -106,23 +103,21 @@ class Day19 {
             val minutesLeft = state.minutesLeft - 1
             var maxValue = -1
             var builtGeode = false
-            if (!justWait) {
-                for (cost in blueprint.costs.asIterable().sortedBy { -it.key.weight }) {
-                    val robotType = cost.key
-                    if (needBuild(robotType, state.robotsCount[robotType] ?: 0)) {
-                        val rest = tryBuild(state.materialsCount, cost.value)
-                        if (rest != null) {
-                            val robotsCount = increaseRobotsCount(state, robotType)
-                            val materialsCount = harvest(state.robotsCount, rest)
-                            val playResult = play(State(minutesLeft, robotsCount, materialsCount))
-                            maxValue = max(maxValue, playResult)
-                            builtGeode = robotType == Material.Geode
-                        }
+            for (cost in blueprint.costs.asIterable().sortedBy { -it.key.weight }) {
+                val robotType = cost.key
+                if (needBuild(robotType, state.robotsCount[robotType] ?: 0)) {
+                    val rest = tryBuild(state.materialsCount, cost.value)
+                    if (rest != null) {
+                        val robotsCount = increaseRobotsCount(state, robotType)
+                        val materialsCount = harvest(state.robotsCount, rest)
+                        val playResult = play(State(minutesLeft, robotsCount, materialsCount))
+                        maxValue = max(maxValue, playResult)
+                        builtGeode = robotType == Material.Geode
                     }
+                }
 
-                    if (builtGeode) {
-                        break
-                    }
+                if (builtGeode) {
+                    break
                 }
             }
 
@@ -193,26 +188,24 @@ class Day19 {
     }
 
     fun part1(input: List<String>): String {
-//        val blueprints = parse(input)
-//        val minutesTotal = 24
-//
-//        val result = blueprints.sumOf { blueprint ->
-//            val player = Player(
-//                mutableMapOf(),
-//                blueprint.maxLimits(minutesTotal),
-//                blueprint.getMaxMaterialsMap(),
-//                blueprint,
-//                minutesTotal
-//            )
-//            val initialState = State(minutesTotal, mapOf(Material.Ore to 1), mapOf())
-//            val maxGeodes = player.play(initialState)
-//            println("Blueprint: ${blueprint.number}. Geodes: $maxGeodes")
-//            maxGeodes * blueprint.number
-//        }
-//
-//        return result.toString()
+        val blueprints = parse(input)
+        val minutesTotal = 24
 
-        return "-1"
+        val result = blueprints.sumOf { blueprint ->
+            val player = Player(
+                mutableMapOf(),
+                blueprint.maxLimits(minutesTotal),
+                blueprint.getMaxMaterialsMap(),
+                blueprint,
+                minutesTotal
+            )
+            val initialState = State(minutesTotal, mapOf(Material.Ore to 1), mapOf())
+            val maxGeodes = player.play(initialState)
+            println("Blueprint: ${blueprint.number}. Geodes: $maxGeodes")
+            maxGeodes * blueprint.number
+        }
+
+        return result.toString()
     }
 
     fun part2(input: List<String>): String {

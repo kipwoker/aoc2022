@@ -16,7 +16,7 @@ class Day20 {
             if (cell.value == 0L) {
                 continue
             }
-            var shift = (cell.value + index + n - 1) % (n - 1)
+            var shift = (cell.value + index) % (n - 1)
             if (shift < 0) {
                 shift += n - 1
             }
@@ -51,8 +51,7 @@ class Day20 {
         val r3000 = find(zeroIndex + 3000, mixed)
         println("3000: $r3000")
 
-        val result = r1000 + r2000 + r3000
-        return result
+        return r1000 + r2000 + r3000
     }
 
     fun part1(input: List<String>): String {
@@ -65,10 +64,8 @@ class Day20 {
     fun part2(input: List<String>): String {
         val list = parse(input)
         var mixed = list.mapIndexed { index, value -> Cell(value * 811589153, index + 1) }
-        println("Initial: $mixed")
         for (i in 1..10) {
             mixed = mix(mixed)
-            println("After $i: $mixed")
         }
 
         val result = calc(mixed)
@@ -83,9 +80,9 @@ fun main() {
     val name = solution.javaClass.name
 
     val execution = setOf(
-        // ExecutionMode.Test1,
+        ExecutionMode.Test1,
         ExecutionMode.Test2,
-        // ExecutionMode.Exec1,
+        ExecutionMode.Exec1,
         ExecutionMode.Exec2
     )
 

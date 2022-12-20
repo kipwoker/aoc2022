@@ -110,3 +110,10 @@ enum class Sign {
     Less,
     More
 }
+
+enum class ExecutionMode {
+    Test1,
+    Test2,
+    Exec1,
+    Exec2
+}

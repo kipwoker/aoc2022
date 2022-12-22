@@ -1,21 +1,9 @@
 import java.io.File
-import java.math.BigInteger
-import java.security.MessageDigest
 import kotlin.math.max
 import kotlin.math.min
 
-/**
- * Reads lines from the given input txt file.
- */
 fun readInput(name: String) = File("src", "$name.txt")
     .readLines()
-
-/**
- * Converts string to md5 hash.
- */
-fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteArray()))
-    .toString(16)
-    .padStart(32, '0')
 
 fun <T> assert(actual: T, expected: T) {
     if (actual == expected) {
@@ -26,10 +14,6 @@ fun <T> assert(actual: T, expected: T) {
 }
 
 data class Interval(val start: Int, val end: Int) {
-    fun isBound(value: Int): Boolean {
-        return start == value || end == value
-    }
-
     companion object {
         fun merge(intervals: List<Interval>): List<Interval> {
             var sorted = intervals.sortedBy { i -> i.start }
@@ -90,6 +74,26 @@ data class Interval(val start: Int, val end: Int) {
 
         return count
     }
+
+    fun minStart(x: Int): Interval {
+        if (x < start) {
+            return Interval(x, end)
+        }
+
+        return this
+    }
+
+    fun maxEnd(x: Int): Interval {
+        if (x > end) {
+            return Interval(start, x)
+        }
+
+        return this
+    }
+
+    fun isInside(t: Int): Boolean {
+        return t in start..end
+    }
 }
 
 data class Point(val x: Int, val y: Int) {
@@ -103,6 +107,20 @@ enum class Direction {
     Down,
     Left,
     Right
+}
+
+object DirectionManager {
+    private val directions = arrayOf(Direction.Up, Direction.Right, Direction.Down, Direction.Left)
+
+    fun turn(current: Direction, target: Direction): Direction {
+        if (target == Direction.Down || target == Direction.Up) {
+            throw RuntimeException("Illegal action $current -> $target")
+        }
+
+        val d = if (target == Direction.Left) -1 else 1
+        val index = (directions.indexOf(current) + d + directions.size) % directions.size
+        return directions[index]
+    }
 }
 
 enum class Sign {
